@@ -53,4 +53,13 @@ describe('Phase 1 accessibility contract', () => {
       screen.getByRole('link', { name: 'Skip to main content' }),
     ).toHaveFocus();
   });
+
+  it('keeps the expanded recovery disclosure free of automated violations', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<HomePage />);
+
+    await user.click(screen.getByText('See recovery examples'));
+
+    await expectNoAxeViolations(container);
+  });
 });

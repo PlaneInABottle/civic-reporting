@@ -388,14 +388,16 @@ export function ReportFlow({
               </p>
             </section>
           ) : null}
-          <button
-            className="primary-button mt-6 w-full"
-            disabled={!location || busy}
-            onClick={() => void continueFromLocation()}
-            type="button"
-          >
-            Use this location
-          </button>
+          {location ? (
+            <button
+              className="primary-button mt-6 w-full"
+              disabled={busy}
+              onClick={() => void continueFromLocation()}
+              type="button"
+            >
+              Use this location
+            </button>
+          ) : null}
         </FlowCard>
       ) : null}
 

@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import HomePage from '@/app/page';
 import { ScreenStateGallery } from '@/components/screen-state-gallery';
@@ -17,8 +18,11 @@ describe('Phase 1 public foundation', () => {
     ).toHaveAttribute('href', '#main-content');
   });
 
-  it('renders concrete recovery-oriented states rather than happy-path placeholders', () => {
+  it('renders concrete recovery-oriented states in the compact disclosure', async () => {
+    const user = userEvent.setup();
     render(<ScreenStateGallery />);
+
+    await user.click(screen.getByText('See recovery examples'));
 
     for (const label of [
       'Loading nearby reports',

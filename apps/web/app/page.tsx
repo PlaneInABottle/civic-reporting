@@ -24,7 +24,7 @@ export default function HomePage() {
                 className="inline-flex min-h-12 items-center justify-center rounded-control bg-safety px-6 py-3 font-extrabold text-ink no-underline hover:bg-safety-hover"
                 href="/report/new"
               >
-                Report an issue
+                Start a report
               </Link>
               <Link
                 className="inline-flex min-h-12 items-center justify-center rounded-control border-2 border-ink px-6 py-3 font-bold text-ink no-underline"
