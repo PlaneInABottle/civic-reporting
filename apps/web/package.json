@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@civic-reporting/contracts": "workspace:*",
+    "@civic-reporting/data-access": "workspace:*",
     "@civic-reporting/database-types": "workspace:*",
     "@civic-reporting/domain": "workspace:*",
     "@supabase/ssr": "0.12.4",

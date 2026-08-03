@@ -8,6 +8,8 @@ import { mapOtpError } from '@civic-reporting/domain';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 
 type AdapterResult = { ok: true } | { ok: false; message: string };
+type DraftClaimResult =
+  { ok: true; nextPath?: string } | { ok: false; message: string };
 
 export interface OtpAuth {
   requestOtp(email: string): Promise<AdapterResult>;
@@ -16,7 +18,7 @@ export interface OtpAuth {
 
 export interface DraftHandshake {
   hasSavedDraft(): Promise<boolean>;
-  claim(): Promise<AdapterResult>;
+  claim(): Promise<DraftClaimResult>;
 }
 
 interface OtpSignInProps {
@@ -93,7 +95,7 @@ export function OtpSignIn({
       setError(errorMessages[mapOtpError(result.message)]);
       return;
     }
-    let claimResult: AdapterResult;
+    let claimResult: DraftClaimResult;
     try {
       claimResult = await draft.claim();
     } catch {
@@ -108,7 +110,11 @@ export function OtpSignIn({
       setError(claimResult.message);
       return;
     }
-    onVerified(nextPath);
+    const isReportingRecovery =
+      nextPath === '/report/new?verified=1' || nextPath.startsWith('/reports/');
+    onVerified(
+      isReportingRecovery ? (claimResult.nextPath ?? nextPath) : nextPath,
+    );
   }
 
   return (

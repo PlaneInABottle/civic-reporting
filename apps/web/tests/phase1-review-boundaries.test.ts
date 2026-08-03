@@ -35,7 +35,7 @@ describe('Phase 1 review boundaries', () => {
       '@civic-reporting/contracts',
     );
     expect(nextConfig).toMatch(/contracts|domain|database-types/);
-    expect(nextConfig).not.toContain('data-access');
+    expect(nextConfig).toContain('data-access');
     expect(prettierIgnore).toContain('packages/database-types');
   });
 

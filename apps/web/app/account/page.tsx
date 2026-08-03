@@ -10,11 +10,17 @@ export default async function AccountPage() {
         <p className="font-extrabold text-civic">Verified citizen area</p>
         <h1 className="text-3xl font-black">Your account</h1>
         <p className="text-neutral">
-          Only your own verified drafts are available in Phase 2.
+          Review your private submissions and verified drafts. Platform
+          acceptance never implies organization receipt or delivery.
         </p>
-        <Link className="font-bold text-link" href="/account/drafts">
-          View verified drafts
-        </Link>
+        <div className="flex flex-wrap gap-5">
+          <Link className="font-bold text-link" href="/account/reports">
+            View your reports
+          </Link>
+          <Link className="font-bold text-link" href="/account/drafts">
+            View verified drafts
+          </Link>
+        </div>
       </main>
     </PublicShell>
   );

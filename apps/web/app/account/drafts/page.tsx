@@ -1,4 +1,5 @@
 import { PublicShell } from '@/components/public-shell';
+import Link from 'next/link';
 import { requireRoute } from '@/lib/auth/require-route';
 import { createClient } from '@/lib/supabase/server';
 
@@ -31,6 +32,12 @@ export default async function AccountDraftsPage() {
                   Draft ID {draft.id.slice(0, 8)}… · expires{' '}
                   {new Date(draft.expires_at).toLocaleDateString('en')}
                 </p>
+                <Link
+                  className="mt-3 inline-block font-bold text-link"
+                  href="/report/new?verified=1"
+                >
+                  Continue and submit
+                </Link>
               </li>
             ))}
           </ul>

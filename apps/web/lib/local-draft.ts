@@ -9,6 +9,11 @@ const databaseName = 'civic-reporting-local';
 const storeName = 'drafts';
 const activeDraftKey = 'active-report';
 
+export interface SubmissionAttempt {
+  idempotencyKey: string;
+  correlationId: string;
+}
+
 function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(databaseName, 1);
@@ -61,4 +66,21 @@ export async function writeLocalDraft(envelope: LocalDraftEnvelope) {
 
 export async function clearLocalDraft() {
   await transactStore('readwrite', (store) => store.delete(activeDraftKey));
+}
+
+export async function getOrCreateSubmissionAttempt(
+  draftId: string,
+): Promise<SubmissionAttempt> {
+  const key = `submission:${draftId}`;
+  const existing = await transactStore<SubmissionAttempt | undefined>(
+    'readonly',
+    (store) => store.get(key),
+  );
+  if (existing?.idempotencyKey && existing.correlationId) return existing;
+  const created = {
+    idempotencyKey: crypto.randomUUID(),
+    correlationId: crypto.randomUUID(),
+  };
+  await transactStore('readwrite', (store) => store.put(created, key));
+  return created;
 }

@@ -402,7 +402,10 @@ export type Database = {
           created_at: string
           decision_summary: string | null
           id: string
+          last_provider_at: string | null
+          last_provider_code: string | null
           organization_id: string
+          provider_attempt_count: number
           report_id: string
           state: Database["public"]["Enums"]["moderation_state"]
           updated_at: string
@@ -413,7 +416,10 @@ export type Database = {
           created_at?: string
           decision_summary?: string | null
           id?: string
+          last_provider_at?: string | null
+          last_provider_code?: string | null
           organization_id: string
+          provider_attempt_count?: number
           report_id: string
           state?: Database["public"]["Enums"]["moderation_state"]
           updated_at?: string
@@ -424,7 +430,10 @@ export type Database = {
           created_at?: string
           decision_summary?: string | null
           id?: string
+          last_provider_at?: string | null
+          last_provider_code?: string | null
           organization_id?: string
+          provider_attempt_count?: number
           report_id?: string
           state?: Database["public"]["Enums"]["moderation_state"]
           updated_at?: string
@@ -1209,16 +1218,19 @@ export type Database = {
     Views: {
       public_report_events: {
         Row: {
+          actor_type: Database["public"]["Enums"]["actor_type"] | null
           created_at: string | null
           new_status: Database["public"]["Enums"]["report_status"] | null
           public_id: string | null
           public_label: string | null
+          source: string | null
         }
         Relationships: []
       }
       public_reports: {
         Row: {
           accepted_at: string | null
+          category_name: string | null
           close_reason:
             | Database["public"]["Enums"]["report_close_reason"]
             | null
@@ -1231,6 +1243,7 @@ export type Database = {
             | null
           public_longitude: number | null
           status: Database["public"]["Enums"]["report_status"] | null
+          support_count: number | null
           title: string | null
           updated_at: string | null
         }
@@ -1261,7 +1274,48 @@ export type Database = {
       }
       current_aal: { Args: never; Returns: string }
       current_actor_context: { Args: never; Returns: Json }
+      finalize_text_moderation: {
+        Args: {
+          provider_code: string
+          request_correlation_id: string
+          request_idempotency_key: string
+          requested_decision: string
+          target_report_id: string
+        }
+        Returns: {
+          publication_state: Database["public"]["Enums"]["publication_state"]
+          report_status: Database["public"]["Enums"]["report_status"]
+        }[]
+      }
+      find_duplicate_candidates: {
+        Args: {
+          public_latitude: number
+          public_longitude: number
+          result_limit?: number
+          target_organization_category_id: string
+        }
+        Returns: {
+          accepted_at: string
+          approximate_distance_meters: number
+          category_name: string
+          public_id: string
+          public_label: string
+          status: Database["public"]["Enums"]["report_status"]
+          title: string
+          why_suggested: string
+        }[]
+      }
       generate_public_report_id: { Args: never; Returns: string }
+      get_my_report_relationship: {
+        Args: {
+          requested_kind: Database["public"]["Enums"]["relationship_kind"]
+          target_public_id: string
+        }
+        Returns: {
+          enabled: boolean
+          notification_level: Database["public"]["Enums"]["notification_level"]
+        }[]
+      }
       has_org_preset: {
         Args: {
           required_preset: Database["public"]["Enums"]["membership_preset"]
@@ -1277,7 +1331,42 @@ export type Database = {
       }
       is_report_owner: { Args: { target_report_id: string }; Returns: boolean }
       is_verified_user: { Args: never; Returns: boolean }
+      record_text_moderation_attempt: {
+        Args: { request_correlation_id: string; target_report_id: string }
+        Returns: number
+      }
       request_fingerprint: { Args: { parts: string[] }; Returns: string }
+      set_report_relationship: {
+        Args: {
+          request_correlation_id: string
+          request_idempotency_key: string
+          requested_enabled: boolean
+          requested_kind: Database["public"]["Enums"]["relationship_kind"]
+          requested_notification_level: Database["public"]["Enums"]["notification_level"]
+          target_public_id: string
+        }
+        Returns: {
+          enabled: boolean
+          notification_level: Database["public"]["Enums"]["notification_level"]
+          support_count: number
+        }[]
+      }
+      submit_verified_report: {
+        Args: {
+          expected_version: number
+          request_correlation_id: string
+          request_idempotency_key: string
+          target_draft_id: string
+        }
+        Returns: {
+          moderation_case_id: string
+          moderation_text: string
+          public_id: string
+          publication_state: Database["public"]["Enums"]["publication_state"]
+          report_id: string
+          report_status: Database["public"]["Enums"]["report_status"]
+        }[]
+      }
       transition_delivery: {
         Args: {
           error_code: string

@@ -42,6 +42,175 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
+input,
+select,
+textarea {
+  min-height: 3rem;
+  width: 100%;
+  border: 0.125rem solid var(--color-ink);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  padding: 0.625rem 0.75rem;
+  color: var(--color-ink);
+  font: inherit;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.field-label {
+  display: grid;
+  gap: 0.5rem;
+  font-weight: 800;
+}
+
+.primary-button,
+.secondary-button {
+  min-height: 2.75rem;
+  border-radius: var(--radius-control);
+  padding: 0.625rem 1rem;
+  font-weight: 800;
+}
+
+.primary-button {
+  border: 0.125rem solid var(--color-civic);
+  background: var(--color-civic);
+  color: white;
+}
+
+.primary-button:hover {
+  background: var(--color-civic-hover);
+}
+
+.secondary-button {
+  border: 0.125rem solid var(--color-ink);
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.primary-button:disabled,
+.secondary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.result-button {
+  display: grid;
+  min-height: 3rem;
+  width: 100%;
+  gap: 0.25rem;
+  border: 0.125rem solid color-mix(in srgb, var(--color-ink) 25%, transparent);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.review-list {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+}
+
+.review-list div {
+  display: grid;
+  gap: 0.25rem;
+  border-bottom: 0.0625rem solid
+    color-mix(in srgb, var(--color-ink) 15%, transparent);
+  padding-bottom: 1rem;
+}
+
+.review-list dt {
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--color-neutral);
+}
+
+.review-list dd {
+  margin: 0;
+}
+
+.synthetic-map {
+  position: relative;
+  min-height: 24rem;
+  overflow: hidden;
+  border: 0.0625rem solid color-mix(in srgb, var(--color-ink) 20%, transparent);
+  border-radius: var(--radius-panel);
+  background:
+    linear-gradient(
+      90deg,
+      transparent 49%,
+      rgb(15 118 110 / 12%) 50%,
+      transparent 51%
+    ),
+    linear-gradient(
+      0deg,
+      transparent 49%,
+      rgb(15 118 110 / 12%) 50%,
+      transparent 51%
+    ),
+    var(--color-map-empty);
+  background-size: 4rem 4rem;
+}
+
+.map-caption {
+  position: absolute;
+  inset: 1rem 1rem auto;
+  margin: 0;
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.map-marker {
+  position: absolute;
+  max-width: 12rem;
+  min-height: 2.75rem;
+  border: 0.125rem solid var(--color-ink);
+  border-radius: var(--radius-control);
+  background: var(--color-safety);
+  padding: 0.5rem;
+  color: var(--color-ink);
+  font-weight: 800;
+}
+
+.map-marker[aria-pressed='true'] {
+  border-color: var(--color-civic);
+  background: var(--color-surface);
+}
+
+.map-marker-1 {
+  left: 10%;
+  top: 28%;
+}
+.map-marker-2 {
+  right: 12%;
+  top: 38%;
+}
+.map-marker-3 {
+  bottom: 16%;
+  left: 28%;
+}
+.map-marker-4 {
+  bottom: 20%;
+  right: 18%;
+}
+
+.timeline-list {
+  display: grid;
+  gap: 1rem;
+  list-style: none;
+  padding: 0;
+}
+
+.timeline-list li {
+  border-left: 0.25rem solid var(--color-info);
+  padding: 0.75rem 0 0.75rem 1rem;
+}
+
 :focus-visible {
   outline: 0.1875rem solid var(--color-surface);
   outline-offset: 0.125rem;

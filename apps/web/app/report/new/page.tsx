@@ -1,67 +1,131 @@
 import type { Metadata } from 'next';
 import { PublicShell } from '@/components/public-shell';
+import { ReportFlowBoundary } from '@/components/report-flow/report-flow-boundary';
+import type {
+  ReportingCategory,
+  ServerDraft,
+} from '@/components/report-flow/report-flow';
+import { createClient } from '@/lib/supabase/server';
+import { selectLatestActionableDraft } from '@/lib/reporting/server-data';
 
 export const metadata: Metadata = {
   title: 'Report an issue',
   robots: { index: false, follow: false },
 };
 
-export default function ReportNewPage() {
+export function ReportNewPageContent({
+  categories,
+  initialAuthenticated,
+  initialDraft,
+  unavailable = false,
+}: {
+  categories: ReportingCategory[];
+  initialAuthenticated: boolean;
+  initialDraft: ServerDraft | null;
+  unavailable?: boolean;
+}) {
   return (
     <PublicShell>
       <main
         className="mx-auto max-w-[40rem] px-4 py-10 pb-28 sm:px-6"
         id="main-content"
       >
-        <p className="m-0 text-sm font-extrabold text-civic">
-          Step 1 of 6 · Location
+        <p className="mb-6 text-neutral">
+          Email verification is required before submission. A local draft stays
+          in this browser until verification succeeds.
         </p>
-        <h1 className="mb-0 mt-3 text-3xl font-black sm:text-4xl">
-          Where is the issue?
-        </h1>
-        <p className="mt-4 max-w-prose text-neutral">
-          Choose a location inside the fictional Harborfield Pilot District.
-          Email verification is required before your report is routed.
-        </p>
-        <section
-          aria-labelledby="location-options-heading"
-          className="mt-8 rounded-panel border border-ink/15 bg-surface p-6 sm:p-8"
-        >
-          <h2
-            className="m-0 text-xl font-extrabold"
-            id="location-options-heading"
-          >
-            Choose how to locate the issue
-          </h2>
-          <p className="mt-2 text-neutral">
-            Location permission is requested only after you choose the location
-            button. A complete non-map route is always available.
-          </p>
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            <button
-              className="min-h-12 rounded-control bg-civic px-5 py-3 font-extrabold text-white hover:bg-civic-hover"
-              type="button"
-            >
-              Use my location
-            </button>
-            <button
-              className="min-h-12 rounded-control border-2 border-ink bg-surface px-5 py-3 font-extrabold text-ink"
-              type="button"
-            >
-              Enter address without a map
-            </button>
-          </div>
-          <div className="mt-8 rounded-control border-l-4 border-attention bg-warning-bg p-4">
-            <h2 className="m-0 text-base font-extrabold">
-              Location not available?
-            </h2>
-            <p className="mb-0 mt-1 text-sm text-neutral">
-              Your local draft is preserved if permission is denied, GPS times
-              out, the map fails, or you go offline.
+        {unavailable || categories.length === 0 ? (
+          <section className="rounded-panel border border-ink/15 bg-surface p-6">
+            <h1 className="m-0 text-3xl font-black">
+              Reporting is temporarily unavailable
+            </h1>
+            <p className="text-neutral">
+              The local pilot configuration could not be loaded. No report was
+              sent. Retry when the local service is available.
             </p>
-          </div>
-        </section>
+            <a className="secondary-button inline-flex" href="/report/new">
+              Retry reporting
+            </a>
+          </section>
+        ) : (
+          <ReportFlowBoundary
+            categories={categories}
+            initialAuthenticated={initialAuthenticated}
+            initialDraft={initialDraft}
+          />
+        )}
       </main>
     </PublicShell>
+  );
+}
+
+export default async function ReportNewPage() {
+  const supabase = await createClient();
+  const [{ data: userData }, { data: configuredCategories, error }] =
+    await Promise.all([
+      supabase.auth.getUser(),
+      supabase
+        .from('organization_categories')
+        .select(
+          'id, version, category:categories!inner(name, emergency_exclusion)',
+        )
+        .eq('is_active', true)
+        .order('id'),
+    ]);
+
+  const categories: ReportingCategory[] = (configuredCategories ?? []).map(
+    (configured) => ({
+      id: configured.id,
+      name: configured.category.name,
+      emergencyExclusion: configured.category.emergency_exclusion,
+      publicationPolicyVersion: configured.version,
+    }),
+  );
+
+  let initialDraft: ServerDraft | null = null;
+  if (userData.user) {
+    const { data: drafts } = await supabase
+      .from('report_drafts')
+      .select(
+        'id, version, description, exact_address, public_label, public_location_precision, organization_category_id',
+      )
+      .gt('expires_at', new Date().toISOString())
+      .order('updated_at', { ascending: false })
+      .limit(20);
+    const draftIds = (drafts ?? []).map((draft) => draft.id);
+    const { data: finalizedReports } = draftIds.length
+      ? await supabase
+          .from('reports')
+          .select('source_draft_id, publication_state')
+          .in('source_draft_id', draftIds)
+          .in('publication_state', ['published', 'rejected'])
+      : { data: [] };
+    const draft = selectLatestActionableDraft(
+      drafts ?? [],
+      (finalizedReports ?? []).map((report) => report.source_draft_id),
+    );
+    if (draft) {
+      initialDraft = {
+        id: draft.id,
+        version: draft.version,
+        description: draft.description,
+        exactAddress: draft.exact_address,
+        publicLabel: draft.public_label,
+        publicLocationPrecision: draft.public_location_precision,
+        categoryName:
+          categories.find(
+            (category) => category.id === draft.organization_category_id,
+          )?.name ?? 'Configured issue category',
+      };
+    }
+  }
+
+  return (
+    <ReportNewPageContent
+      categories={categories}
+      initialAuthenticated={Boolean(userData.user)}
+      initialDraft={initialDraft}
+      unavailable={Boolean(error)}
+    />
   );
 }

@@ -86,4 +86,10 @@ verify_enabled = true
 enabled = false
 
 [edge_runtime]
-enabled = false
+enabled = true
+policy = "oneshot"
+
+[functions.submit-report]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/submit-report/index.ts"

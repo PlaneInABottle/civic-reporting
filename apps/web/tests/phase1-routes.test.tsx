@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import ReportsPage from '@/app/reports/page';
-import ReportNewPage from '@/app/report/new/page';
+import { ReportsPageContent } from '@/app/reports/page';
+import { ReportNewPageContent } from '@/app/report/new/page';
 import { AdminPageContent as AdminPage } from '@/app/admin/page';
 import { ModerationPageContent as ModerationPage } from '@/app/admin/moderation/page';
 import { PlatformPageContent as PlatformPage } from '@/app/platform/page';
@@ -10,7 +10,7 @@ import { metadata as platformMetadata } from '@/app/platform/layout';
 
 describe('Phase 1 representative route shells', () => {
   it('makes the public reports view list-first and explicit about stale recovery', () => {
-    render(<ReportsPage />);
+    render(<ReportsPageContent loadError reports={[]} />);
 
     expect(
       screen.getByRole('heading', { name: 'Browse public reports' }),
@@ -21,7 +21,20 @@ describe('Phase 1 representative route shells', () => {
   });
 
   it('offers location and non-map paths without requesting permission on load', () => {
-    render(<ReportNewPage />);
+    render(
+      <ReportNewPageContent
+        categories={[
+          {
+            id: '30000000-0000-4000-8000-000000000001',
+            name: 'Street or footpath',
+            emergencyExclusion: 'Not for emergencies.',
+            publicationPolicyVersion: 1,
+          },
+        ]}
+        initialAuthenticated={false}
+        initialDraft={null}
+      />,
+    );
 
     expect(
       screen.getByRole('heading', { name: 'Where is the issue?' }),

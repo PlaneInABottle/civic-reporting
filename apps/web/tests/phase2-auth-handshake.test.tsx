@@ -106,6 +106,41 @@ describe('Phase 2 OTP and same-browser draft handshake', () => {
     expect(onVerified).toHaveBeenCalledWith('/account/drafts');
   });
 
+  it('preserves an explicit account destination when a report draft is claimed', async () => {
+    const user = userEvent.setup();
+    const onVerified = vi.fn();
+
+    render(
+      <OtpSignIn
+        auth={{
+          requestOtp: vi.fn().mockResolvedValue({ ok: true }),
+          verifyOtp: vi.fn().mockResolvedValue({ ok: true }),
+        }}
+        draft={{
+          claim: vi.fn().mockResolvedValue({
+            ok: true,
+            nextPath: '/report/new?verified=1',
+          }),
+          hasSavedDraft: vi.fn().mockResolvedValue(true),
+        }}
+        nextPath="/account/drafts"
+        onVerified={onVerified}
+      />,
+    );
+
+    await user.type(
+      screen.getByLabelText('Email address'),
+      'pilot@example.test',
+    );
+    await user.click(screen.getByRole('button', { name: 'Email me a code' }));
+    await user.type(await screen.findByLabelText('Six-digit code'), '123456');
+    await user.click(screen.getByRole('button', { name: 'Verify code' }));
+
+    await waitFor(() =>
+      expect(onVerified).toHaveBeenCalledWith('/account/drafts'),
+    );
+  });
+
   it('keeps the verified session recoverable when local draft storage fails', async () => {
     const user = userEvent.setup();
     render(

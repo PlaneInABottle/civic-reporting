@@ -5,12 +5,20 @@ import {
   type VerifiedDraftIntent,
 } from '@civic-reporting/contracts';
 import type { Database } from '@civic-reporting/database-types';
+import { toRelationshipRpcArgs } from '@civic-reporting/data-access';
 import { createClient } from '@/lib/supabase/browser';
 import { clearLocalDraft, readLocalDraft } from '@/lib/local-draft';
 import type { DraftHandshake, OtpAuth } from '@/components/auth/otp-sign-in';
 
 type GeneratedDraftRpcArgs =
   Database['public']['Functions']['create_verified_draft']['Args'];
+type RelationshipRpcArgs =
+  Database['public']['Functions']['set_report_relationship']['Args'];
+
+interface DraftClaimOperations {
+  createDraft(args: ReturnType<typeof toDraftRpcArgs>): Promise<void>;
+  setRelationship(args: RelationshipRpcArgs): Promise<void>;
+}
 
 export function toDraftRpcArgs(draft: VerifiedDraftIntent) {
   return {
@@ -27,6 +35,30 @@ export function toDraftRpcArgs(draft: VerifiedDraftIntent) {
     requested_precision: draft.publicLocationPrecision,
     target_organization_category_id: draft.organizationCategoryId,
   };
+}
+
+export async function claimVerifiedDraftIntent(
+  draft: VerifiedDraftIntent,
+  operations: DraftClaimOperations,
+): Promise<{ ok: true; nextPath?: string }> {
+  if (draft.intentKind === 'support_existing') {
+    const publicId = draft.duplicateTargetPublicId;
+    if (!publicId) throw new Error('support_target_required');
+    await operations.setRelationship(
+      toRelationshipRpcArgs({
+        publicId,
+        kind: 'support',
+        enabled: true,
+        notificationLevel: draft.notificationLevel ?? 'none',
+        idempotencyKey: draft.idempotencyKey,
+        correlationId: draft.correlationId,
+      }),
+    );
+    return { ok: true, nextPath: `/reports/${publicId}?supported=1` };
+  }
+
+  await operations.createDraft(toDraftRpcArgs(draft));
+  return { ok: true, nextPath: '/report/new?verified=1' };
 }
 
 export const otpAuth: OtpAuth = {
@@ -64,20 +96,31 @@ export const draftHandshake: DraftHandshake = {
       };
     }
     const draft = parsed.data;
-    const args = toDraftRpcArgs(draft);
-    // The generator cannot express nullable PostgreSQL function arguments.
-    const { error } = await createClient().rpc(
-      'create_verified_draft',
-      args as unknown as GeneratedDraftRpcArgs,
-    );
-    if (error) {
+    const supabase = createClient();
+    let result: { ok: true; nextPath?: string };
+    try {
+      result = await claimVerifiedDraftIntent(draft, {
+        async createDraft(args) {
+          // The generator cannot express nullable PostgreSQL function arguments.
+          const { error } = await supabase.rpc(
+            'create_verified_draft',
+            args as unknown as GeneratedDraftRpcArgs,
+          );
+          if (error) throw error;
+        },
+        async setRelationship(args) {
+          const { error } = await supabase.rpc('set_report_relationship', args);
+          if (error) throw error;
+        },
+      });
+    } catch {
       return {
         ok: false,
         message:
-          'The verified draft could not be copied yet. Retry from this browser.',
+          'The verified draft or support intent could not be copied yet. Retry from this browser.',
       };
     }
     await clearLocalDraft();
-    return { ok: true };
+    return result;
   },
 };

@@ -2,8 +2,9 @@
 
 Status: BLOCKED for any real pilot or production launch.
 
-Phase 2 proves only the local technical Auth/RLS foundation. It does not close
-any legal, privacy, staffing, vendor, real-city, or production-launch gate.
+Phase 3 proves only the local technical Auth/RLS and text-first reporting
+foundation. It does not close any legal, privacy, staffing, vendor, real-city,
+or production-launch gate.
 
 The local Phase 1 foundation is executable, but none of the following is
 approved or complete:
@@ -44,7 +45,10 @@ not close the external launch blockers above.
 
 ## Phase 3/4 security gate
 
-The Phase 2 CSP permits framework inline scripts and styles so the current
-Next.js surface can hydrate. Before Phase 3 renders user-generated content or
-Phase 4 enables any media path, replace the inline-script allowance with a
-tested nonce-based strict CSP. This is a launch blocker, not a completed claim.
+Phase 3 replaced the framework inline-script allowance with a request-scoped,
+tested nonce CSP before rendering text UGC. The production script policy has no
+`unsafe-inline` or `unsafe-eval`, and public media is `none`.
+
+This closes only the local Phase 3 technical CSP gate. It does not authorize
+media. Phase 4 safety, reviewer, provider, legal-escalation, and operational
+gates remain unimplemented and blocked; public media stays disabled.

@@ -1,9 +1,12 @@
 import type {
   ActorContext,
   DeliveryState,
+  DuplicateCandidate,
+  LocationPrecision,
   MembershipPreset,
   ModerationState,
   PlatformPreset,
+  ReportCloseReason,
   ReportStatus,
 } from '@civic-reporting/contracts';
 
@@ -148,4 +151,107 @@ export function isDeliveryTransitionAllowed(
   to: DeliveryState,
 ): boolean {
   return deliveryTransitions[from]?.includes(to) ?? false;
+}
+
+export function buildDeterministicTitle(
+  categoryName: string,
+  publicLabel: string,
+): string {
+  return `${categoryName.trim()} near ${publicLabel.trim()}`;
+}
+
+export function publicLocationPreview(
+  publicLocation: { longitude: number; latitude: number },
+  label: string,
+  precision: LocationPrecision,
+) {
+  return {
+    label: label.trim(),
+    location: precision === 'withheld' ? null : publicLocation,
+    precision,
+  };
+}
+
+export function actorQualifiedStatus(
+  status: ReportStatus,
+  closeReason: ReportCloseReason | null,
+): string {
+  if (status === 'closed') {
+    const reasons: Record<ReportCloseReason, string> = {
+      duplicate: 'Closed — duplicate of another report',
+      out_of_service_area: 'Closed — outside this service area',
+      no_action_planned:
+        'Closed — no action planned by the fictional organization',
+      content_policy: 'Closed — not published under the content policy',
+      withdrawn: 'Closed — withdrawn by the reporter',
+    };
+    return closeReason ? reasons[closeReason] : 'Closed by an authorized actor';
+  }
+  const labels: Record<ReportStatus, string> = {
+    draft: 'Draft — not submitted',
+    pending_verification: 'Waiting for email verification',
+    pending_moderation: 'Accepted by the platform — safety checks in progress',
+    submitted: 'Accepted by the platform',
+    received: 'Acknowledged by the fictional organization',
+    needs_information: 'The fictional organization needs more information',
+    in_progress: 'Work marked in progress by the fictional organization',
+    resolved: 'Marked resolved by the fictional organization',
+    closed: 'Closed by an authorized actor',
+  };
+  return labels[status];
+}
+
+export function mapSubmissionFailure(message: string): {
+  kind: 'uncertain' | 'authentication' | 'invalid';
+  retryable: boolean;
+  message: string;
+} {
+  const normalized = message.toLowerCase();
+  if (
+    normalized.includes('verified_identity_required') ||
+    normalized.includes('unauthorized') ||
+    normalized.includes('jwt')
+  ) {
+    return {
+      kind: 'authentication',
+      retryable: false,
+      message:
+        'Your verification expired. Verify your email again to continue.',
+    };
+  }
+  if (
+    normalized.includes('failed to fetch') ||
+    normalized.includes('network') ||
+    normalized.includes('timeout')
+  ) {
+    return {
+      kind: 'uncertain',
+      retryable: true,
+      message:
+        'Submission interrupted — check status before retrying. The same retry key will not create another report.',
+    };
+  }
+  return {
+    kind: 'invalid',
+    retryable: false,
+    message:
+      'The report could not be submitted. Review the draft and try again.',
+  };
+}
+
+export function orderDuplicateCandidates(
+  candidates: readonly DuplicateCandidate[],
+  categoryName: string,
+): DuplicateCandidate[] {
+  return [...candidates]
+    .sort((left, right) => {
+      const categoryDifference =
+        Number(right.categoryName === categoryName) -
+        Number(left.categoryName === categoryName);
+      return (
+        categoryDifference ||
+        left.approximateDistanceMeters - right.approximateDistanceMeters
+      );
+    })
+    .slice(0, 5);
 }

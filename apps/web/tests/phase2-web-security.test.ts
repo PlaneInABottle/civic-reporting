@@ -41,10 +41,10 @@ describe('Phase 2 web security boundary', () => {
   });
 
   it('sets a restrictive CSP and keeps public media disabled', () => {
-    const nextConfig = read('../next.config.ts');
-    expect(nextConfig).toContain("object-src 'none'");
-    expect(nextConfig).toContain("frame-ancestors 'none'");
-    expect(nextConfig).toContain("media-src 'none'");
-    expect(nextConfig).toContain('Permissions-Policy');
+    const proxy = read('../proxy.ts');
+    expect(proxy).toContain("object-src 'none'");
+    expect(proxy).toContain("frame-ancestors 'none'");
+    expect(proxy).toContain("media-src 'none'");
+    expect(read('../next.config.ts')).toContain('Permissions-Policy');
   });
 });
