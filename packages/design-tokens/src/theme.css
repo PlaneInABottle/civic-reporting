@@ -1,0 +1,26 @@
+@theme {
+  --color-ink: #102a2d;
+  --color-canvas: #f6f7f2;
+  --color-surface: #ffffff;
+  --color-civic: #0f766e;
+  --color-civic-hover: #115e59;
+  --color-safety: #f6c445;
+  --color-safety-hover: #f0b92d;
+  --color-link: #0b5cad;
+  --color-info: #2563eb;
+  --color-attention: #b45309;
+  --color-resolved: #15803d;
+  --color-failure: #b91c1c;
+  --color-neutral: #475569;
+  --color-review: #7c3aed;
+  --color-warning-bg: #fff8e8;
+  --color-error-bg: #fff6f6;
+  --color-map-empty: #e8eee9;
+  --font-sans:
+    'Public Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --radius-control: 0.625rem;
+  --radius-panel: 0.875rem;
+  --shadow-floating:
+    0 1px 2px rgb(16 42 45 / 8%), 0 12px 32px rgb(16 42 45 / 10%);
+}

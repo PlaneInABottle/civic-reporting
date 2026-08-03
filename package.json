@@ -1,0 +1,27 @@
+{
+  "name": "civic-reporting",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@11.13.0",
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @civic-reporting/web dev",
+    "build": "pnpm --filter @civic-reporting/web build",
+    "format": "prettier --check .",
+    "format:write": "prettier --write .",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:component": "pnpm --filter @civic-reporting/web test",
+    "test:e2e": "pnpm --filter @civic-reporting/web test:e2e",
+    "qa:start": "pm2 start pnpm --name civic-reporting-web-3010 -- --filter @civic-reporting/web start --port 3010",
+    "qa:stop": "pm2 delete civic-reporting-web-3010"
+  },
+  "devDependencies": {
+    "prettier": "3.9.6",
+    "pm2": "7.0.3",
+    "typescript": "6.0.3"
+  }
+}

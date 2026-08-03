@@ -1,0 +1,67 @@
+@import 'tailwindcss';
+@import '@civic-reporting/design-tokens/theme.css';
+
+:root {
+  color-scheme: light;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 20rem;
+  margin: 0;
+  background:
+    radial-gradient(
+      circle at 90% -10%,
+      rgb(246 196 69 / 18%),
+      transparent 30rem
+    ),
+    var(--color-canvas);
+  color: var(--color-ink);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+a:not([class]) {
+  color: var(--color-link);
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 0.1875rem solid var(--color-surface);
+  outline-offset: 0.125rem;
+  box-shadow: 0 0 0 0.3125rem var(--color-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline-color: Highlight;
+    box-shadow: none;
+  }
+}
