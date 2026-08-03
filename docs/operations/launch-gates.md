@@ -2,6 +2,9 @@
 
 Status: BLOCKED for any real pilot or production launch.
 
+Phase 2 proves only the local technical Auth/RLS foundation. It does not close
+any legal, privacy, staffing, vendor, real-city, or production-launch gate.
+
 The local Phase 1 foundation is executable, but none of the following is
 approved or complete:
 
@@ -20,11 +23,11 @@ approved or complete:
   backups/restores, security review, accessibility user acceptance, and named
   launch sign-off.
 
-Public media remains disabled. Phase 1 contains no technical upload path.
+Public media remains disabled. Phase 2 contains no technical upload path.
 No document in this repository should be interpreted as legal advice, policy
 approval, vendor approval, staffing approval, or production authorization.
 
-## Phase 2 entry gates
+## Phase 2 technical gates
 
 Before any user-generated content, Auth cookie, database row, or staff query is
 introduced:
@@ -36,4 +39,12 @@ introduced:
    prove role-scoped, organization-scoped denial with RLS before returning any
    data.
 
-These are recorded obligations only. They were not implemented in Phase 1.
+Both technical gates were implemented and tested locally in Phase 2. This does
+not close the external launch blockers above.
+
+## Phase 3/4 security gate
+
+The Phase 2 CSP permits framework inline scripts and styles so the current
+Next.js surface can hydrate. Before Phase 3 renders user-generated content or
+Phase 4 enables any media path, replace the inline-script allowance with a
+tested nonce-based strict CSP. This is a launch blocker, not a completed claim.

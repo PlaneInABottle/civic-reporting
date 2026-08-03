@@ -4,6 +4,9 @@ A web-first, synthetic civic-reporting pilot for local and staging engineering.
 Harborfield Pilot District and Harborfield Civic Works Lab are fictional. This
 repository is not a real government service and is not production-ready.
 
+Phase 2 local Supabase setup, verification commands, and security boundaries are
+documented in [docs/implementation/phase-2.md](docs/implementation/phase-2.md).
+
 ## Phase 1 runtime
 
 Requirements:

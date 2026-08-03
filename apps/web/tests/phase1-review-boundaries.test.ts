@@ -17,7 +17,7 @@ describe('Phase 1 review boundaries', () => {
     expect(workspace).toMatch(/sharp: 0\.35\.3/);
   });
 
-  it('does not pre-install or advertise Phase 2 packages and commands', () => {
+  it('keeps Phase 2 dependencies scoped to the web and local toolchain', () => {
     const rootPackage = JSON.parse(
       read('../../../package.json'),
     ) as typeof import('../../../package.json');
@@ -27,19 +27,16 @@ describe('Phase 1 review boundaries', () => {
     const nextConfig = read('../next.config.ts');
     const prettierIgnore = read('../../../.prettierignore');
 
-    expect(rootPackage.scripts).not.toHaveProperty('test:sql');
-    expect(rootPackage.scripts).not.toHaveProperty('db:start');
-    expect(rootPackage.devDependencies).not.toHaveProperty('supabase');
-    expect(Object.keys(webPackage.dependencies).sort()).toEqual([
-      'lucide-react',
-      'next',
-      'react',
-      'react-dom',
-    ]);
-    expect(nextConfig).not.toMatch(
-      /contracts|domain|data-access|database-types/,
+    expect(rootPackage.scripts).toHaveProperty('test:sql');
+    expect(rootPackage.scripts).toHaveProperty('db:start');
+    expect(rootPackage.devDependencies).toHaveProperty('supabase');
+    expect(webPackage.dependencies).toHaveProperty('@supabase/ssr');
+    expect(webPackage.dependencies).toHaveProperty(
+      '@civic-reporting/contracts',
     );
-    expect(prettierIgnore).not.toContain('packages/database-types');
+    expect(nextConfig).toMatch(/contracts|domain|database-types/);
+    expect(nextConfig).not.toContain('data-access');
+    expect(prettierIgnore).toContain('packages/database-types');
   });
 
   it('keeps Phase 1 colors and layout decisions in the shared token system', () => {

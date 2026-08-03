@@ -4,13 +4,18 @@ import { expect, test, type Locator } from '@playwright/test';
 const phase1Routes = [
   '/',
   '/accessibility',
+  '/access-denied?reason=role_not_allowed',
+  '/account/drafts',
+  '/account/security',
   '/admin',
   '/admin/moderation',
+  '/admin/organization',
   '/contact',
   '/platform',
   '/privacy',
   '/report/new',
   '/reports',
+  '/sign-in',
 ] as const;
 
 function contrastRatio(first: string, second: string) {
@@ -125,35 +130,20 @@ test('mobile public foundation keeps the safe reporting paths available', async 
   await expect(page.getByText(/email verification is required/i)).toBeVisible();
 });
 
-test('desktop staff and platform shells expose only honest Phase 1 states', async ({
+test('staff and platform shells are anonymous-deny by Phase 2', async ({
   page,
 }) => {
-  await page.goto('/admin');
-  await expect(
-    page.getByRole('heading', { name: 'Triage queue' }),
-  ).toBeVisible();
-  await expect(page.getByText('Permission denied')).toBeVisible();
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
-    'content',
-    /noindex/,
-  );
-
-  await page.goto('/admin/moderation');
-  await expect(
-    page.getByText(/original media is not shown in this queue/i),
-  ).toBeVisible();
-  await expect(page.getByText(/public media is disabled/i)).toBeVisible();
-
-  await page.goto('/platform');
-  await expect(
-    page.getByRole('heading', { name: 'Platform health' }),
-  ).toBeVisible();
-  await expect(page.getByText(/redacted by default/i)).toBeVisible();
-  await expect(page.getByText(/launch blockers/i)).toBeVisible();
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
-    'content',
-    /noindex/,
-  );
+  for (const route of ['/admin', '/admin/moderation', '/platform']) {
+    await page.goto(route);
+    await expect(page).toHaveURL(/\/sign-in\?next=/);
+    await expect(
+      page.getByRole('heading', { name: 'Verify your email' }),
+    ).toBeVisible();
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+      'content',
+      /noindex/,
+    );
+  }
 
   const platformA11y = await new AxeBuilder({ page }).analyze();
   expect(platformA11y.violations).toEqual([]);

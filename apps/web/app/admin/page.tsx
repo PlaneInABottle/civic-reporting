@@ -1,7 +1,10 @@
 import { StaffShell } from '@/components/staff-shell';
 import { StateNotice } from '@/components/state-notice';
+import { requireRoute } from '@/lib/auth/require-route';
 
-export default function AdminPage() {
+const pilotOrganizationId = '10000000-0000-4000-8000-000000000001';
+
+export function AdminPageContent() {
   return (
     <StaffShell eyebrow="Harborfield Civic Works Lab · synthetic staff area">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -59,4 +62,16 @@ export default function AdminPage() {
       </section>
     </StaffShell>
   );
+}
+
+export default async function AdminPage() {
+  await requireRoute(
+    {
+      kind: 'organization',
+      organizationId: pilotOrganizationId,
+      preset: 'operator',
+    },
+    '/admin',
+  );
+  return <AdminPageContent />;
 }

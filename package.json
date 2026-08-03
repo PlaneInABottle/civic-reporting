@@ -9,6 +9,11 @@
   "scripts": {
     "dev": "pnpm --filter @civic-reporting/web dev",
     "build": "pnpm --filter @civic-reporting/web build",
+    "db:migrate:local": "supabase migration up --local",
+    "db:reset:local": "supabase db reset --local",
+    "db:start": "supabase start",
+    "db:status": "supabase status",
+    "db:stop": "supabase stop",
     "format": "prettier --check .",
     "format:write": "prettier --write .",
     "lint": "pnpm -r lint",
@@ -16,12 +21,16 @@
     "test": "pnpm -r test",
     "test:component": "pnpm --filter @civic-reporting/web test",
     "test:e2e": "pnpm --filter @civic-reporting/web test:e2e",
+    "test:sql": "supabase test db --local",
+    "types:check": "node scripts/check-database-types.mjs",
+    "types:generate": "node scripts/generate-database-types.mjs",
     "qa:start": "pm2 start pnpm --name civic-reporting-web-3010 -- --filter @civic-reporting/web start --port 3010",
     "qa:stop": "pm2 delete civic-reporting-web-3010"
   },
   "devDependencies": {
-    "prettier": "3.9.6",
     "pm2": "7.0.3",
+    "prettier": "3.9.6",
+    "supabase": "2.111.0",
     "typescript": "6.0.3"
   }
 }

@@ -1,6 +1,7 @@
 import Link from 'next/link';
+import { requireRoute } from '@/lib/auth/require-route';
 
-export default function PlatformPage() {
+export function PlatformPageContent() {
   return (
     <>
       <a
@@ -74,4 +75,12 @@ export default function PlatformPage() {
       </main>
     </>
   );
+}
+
+export default async function PlatformPage() {
+  await requireRoute(
+    { kind: 'platform', preset: 'platform_admin' },
+    '/platform',
+  );
+  return <PlatformPageContent />;
 }

@@ -2,9 +2,9 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import ReportsPage from '@/app/reports/page';
 import ReportNewPage from '@/app/report/new/page';
-import AdminPage from '@/app/admin/page';
-import ModerationPage from '@/app/admin/moderation/page';
-import PlatformPage from '@/app/platform/page';
+import { AdminPageContent as AdminPage } from '@/app/admin/page';
+import { ModerationPageContent as ModerationPage } from '@/app/admin/moderation/page';
+import { PlatformPageContent as PlatformPage } from '@/app/platform/page';
 import { metadata as adminMetadata } from '@/app/admin/layout';
 import { metadata as platformMetadata } from '@/app/platform/layout';
 

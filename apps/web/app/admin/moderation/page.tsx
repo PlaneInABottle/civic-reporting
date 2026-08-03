@@ -1,7 +1,10 @@
 import { StaffShell } from '@/components/staff-shell';
 import { StateNotice } from '@/components/state-notice';
+import { requireRoute } from '@/lib/auth/require-route';
 
-export default function ModerationPage() {
+const pilotOrganizationId = '10000000-0000-4000-8000-000000000001';
+
+export function ModerationPageContent() {
   return (
     <StaffShell eyebrow="Restricted reviewer workspace · synthetic pilot">
       <p className="mb-2 text-sm font-extrabold uppercase tracking-[0.12em] text-review">
@@ -35,4 +38,16 @@ export default function ModerationPage() {
       </div>
     </StaffShell>
   );
+}
+
+export default async function ModerationPage() {
+  await requireRoute(
+    {
+      kind: 'organization',
+      organizationId: pilotOrganizationId,
+      preset: 'moderator',
+    },
+    '/admin/moderation',
+  );
+  return <ModerationPageContent />;
 }
